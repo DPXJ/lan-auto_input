@@ -363,6 +363,10 @@ class SmartAutoFillGUI:
             messagebox.showwarning("警告", "请先启动工具")
             return
         
+        # 如果已经托管到后台，直接返回
+        if self.is_minimized_to_tray:
+            return
+        
         # 创建简单的系统托盘图标
         try:
             # 创建图标
@@ -395,7 +399,6 @@ class SmartAutoFillGUI:
             threading.Thread(target=run_tray, daemon=True).start()
             
             self.log_message("工具已托管到系统托盘")
-            messagebox.showinfo("托管成功", "工具已托管到系统托盘\n右键托盘图标可控制")
             
         except Exception as e:
             self.log_message(f"创建托盘图标失败: {e}")
@@ -635,20 +638,15 @@ class SmartAutoFillGUI:
     
     def on_closing(self):
         """关闭窗口时的处理"""
-        if self.is_minimized_to_tray:
-            # 如果已托管到后台，只是隐藏窗口
-            self.root.withdraw()
-            return
-        
+        # 如果工具正在运行，则托管到后台而不是关闭
         if self.is_running:
-            self.stop_tool()
-        self.save_config()
-        
-        # 停止托盘图标
-        if self.tray_icon:
-            self.tray_icon.stop()
-        
-        self.root.destroy()
+            self.minimize_to_tray()
+        else:
+            # 如果工具没有运行，则正常关闭
+            self.save_config()
+            if self.tray_icon:
+                self.tray_icon.stop()
+            self.root.destroy()
 
 def main():
     """主函数"""
