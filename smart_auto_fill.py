@@ -23,9 +23,11 @@ try:
     import win32api
     import win32con
     from pynput import mouse
+    from pystray import Icon, Menu, MenuItem
+    from PIL import Image, ImageDraw
 except ImportError as e:
     print(f"缺少必要的依赖库: {e}")
-    print("请运行: pip install pywin32 pynput")
+    print("请运行: pip install pywin32 pynput pystray Pillow")
     exit(1)
 
 # 配置日志
@@ -68,6 +70,10 @@ class SmartAutoFillGUI:
         self.last_mouse_check_time = 0
         self.mouse_check_interval = 0.1  # 鼠标检测间隔
         
+        # 系统托盘相关
+        self.tray_icon = None
+        self.is_minimized_to_tray = False
+        
         # 配置
         self.config_file = "smart_config.json"
         self.load_config()
@@ -104,7 +110,7 @@ class SmartAutoFillGUI:
             "include_apps": [],
             "hotkeys": {
                 "toggle": "ctrl+shift+a",
-                "status": "ctrl+shift+s",
+                "status": "ctrl+shift+w",
                 "quit": "ctrl+shift+q"
             }
         }
@@ -192,7 +198,8 @@ class SmartAutoFillGUI:
         
         ttk.Button(button_frame, text="测试剪贴板", command=self.test_clipboard).pack(side=tk.LEFT, padx=(0, 5))
         ttk.Button(button_frame, text="测试填充", command=self.test_fill).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(button_frame, text="手动填充", command=self.manual_fill).pack(side=tk.LEFT)
+        ttk.Button(button_frame, text="手动填充", command=self.manual_fill).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(button_frame, text="托管到后台", command=self.minimize_to_tray).pack(side=tk.LEFT)
         
         # 设置框架
         settings_frame = ttk.LabelFrame(main_frame, text="设置", padding="10")
@@ -258,7 +265,7 @@ class SmartAutoFillGUI:
         
         hotkeys = self.config.get("hotkeys", {})
         hotkey_text = f"切换启用/禁用: {hotkeys.get('toggle', 'Ctrl+Shift+A')}\n"
-        hotkey_text += f"显示状态: {hotkeys.get('status', 'Ctrl+Shift+S')}\n"
+        hotkey_text += f"显示状态: {hotkeys.get('status', 'Ctrl+Shift+W')}\n"
         hotkey_text += f"退出程序: {hotkeys.get('quit', 'Ctrl+Shift+Q')}"
         
         ttk.Label(hotkey_frame, text=hotkey_text, justify=tk.LEFT).pack(anchor=tk.W)
@@ -278,6 +285,124 @@ class SmartAutoFillGUI:
         self.save_config()
         self.log_message("设置已保存")
         messagebox.showinfo("提示", "设置已保存")
+    
+    def create_tray_icon(self):
+        """创建系统托盘图标"""
+        try:
+            self.log_message("开始创建系统托盘图标...")
+            
+            # 创建一个简单的图标
+            image = Image.new('RGB', (64, 64), color='green' if self.is_enabled else 'red')
+            draw = ImageDraw.Draw(image)
+            draw.text((10, 20), "AF", fill='white')
+            self.log_message("图标创建成功")
+            
+            # 创建菜单
+            menu = Menu(
+                MenuItem("显示主窗口", self.show_main_window),
+                MenuItem("状态", self.show_status_tray),
+                MenuItem("切换启用", self.toggle_enabled),
+                MenuItem("测试填充", self.test_fill),
+                MenuItem("手动填充", self.manual_fill),
+                MenuItem("设置", self.show_settings),
+                Menu.SEPARATOR,
+                MenuItem("退出", self.stop_tool)
+            )
+            self.log_message("菜单创建成功")
+            
+            status_text = "启用" if self.is_enabled else "禁用"
+            self.tray_icon = Icon("smart_auto_fill", image, f"智能自动填充工具 - {status_text}", menu)
+            self.log_message("托盘图标对象创建成功")
+            
+            # 绑定双击事件
+            self.tray_icon.on_activate = self.show_main_window
+            self.log_message("双击事件绑定成功")
+            
+        except ImportError as e:
+            self.log_message(f"缺少必要的库: {e}")
+            messagebox.showerror("错误", f"缺少必要的库: {e}\n请运行: pip install pystray Pillow")
+            self.tray_icon = None
+        except Exception as e:
+            self.log_message(f"创建系统托盘图标失败: {e}")
+            import traceback
+            self.log_message(f"详细错误: {traceback.format_exc()}")
+            self.tray_icon = None
+    
+    def show_main_window(self):
+        """显示主窗口"""
+        if self.is_minimized_to_tray:
+            self.restore_window()
+    
+    def restore_window(self):
+        """恢复主窗口"""
+        self.root.deiconify()  # 显示窗口
+        self.root.lift()  # 置顶
+        self.root.focus_force()  # 获取焦点
+        self.is_minimized_to_tray = False
+        self.log_message("主窗口已显示")
+        
+        # 停止托盘图标
+        if self.tray_icon:
+            try:
+                self.tray_icon.stop()
+                self.tray_icon = None
+            except:
+                pass
+    
+    def show_status_tray(self):
+        """显示状态"""
+        status = "启用" if self.is_enabled else "禁用"
+        mouse_status = "在输入框上" if self.is_mouse_over_input else "不在输入框上"
+        
+        status_msg = f"智能自动填充工具状态: {status}\n鼠标状态: {mouse_status}\n鼠标位置: ({self.current_mouse_x}, {self.current_mouse_y})"
+        messagebox.showinfo("工具状态", status_msg)
+    
+    def minimize_to_tray(self):
+        """托管到后台"""
+        if not self.is_running:
+            messagebox.showwarning("警告", "请先启动工具")
+            return
+        
+        # 创建简单的系统托盘图标
+        try:
+            # 创建图标
+            image = Image.new('RGB', (32, 32), color='green' if self.is_enabled else 'red')
+            draw = ImageDraw.Draw(image)
+            draw.text((8, 8), "AF", fill='white')
+            
+            # 创建菜单
+            menu = Menu(
+                MenuItem("显示主窗口", self.show_main_window),
+                MenuItem("状态", self.show_status_tray),
+                MenuItem("切换启用", self.toggle_enabled),
+                MenuItem("退出", self.stop_tool)
+            )
+            
+            # 创建托盘图标
+            self.tray_icon = Icon("智能自动填充", image, "智能自动填充工具", menu)
+            
+            # 隐藏主窗口
+            self.root.withdraw()
+            self.is_minimized_to_tray = True
+            
+            # 启动托盘图标
+            def run_tray():
+                try:
+                    self.tray_icon.run()
+                except:
+                    pass
+            
+            threading.Thread(target=run_tray, daemon=True).start()
+            
+            self.log_message("工具已托管到系统托盘")
+            messagebox.showinfo("托管成功", "工具已托管到系统托盘\n右键托盘图标可控制")
+            
+        except Exception as e:
+            self.log_message(f"创建托盘图标失败: {e}")
+            # 如果托盘创建失败，恢复窗口
+            self.root.deiconify()
+            self.is_minimized_to_tray = False
+            messagebox.showerror("错误", "创建系统托盘失败，窗口已恢复")
     
     def test_clipboard(self):
         """测试剪贴板内容"""
@@ -476,6 +601,7 @@ class SmartAutoFillGUI:
         # 注册快捷键
         hotkeys = self.config.get("hotkeys", {})
         keyboard.add_hotkey(hotkeys.get("toggle", "ctrl+shift+a"), self.toggle_enabled)
+        keyboard.add_hotkey(hotkeys.get("status", "ctrl+shift+w"), self.show_status_tray)
         keyboard.add_hotkey(hotkeys.get("quit", "ctrl+shift+q"), self.stop_tool)
         
         # 启动监控线程
@@ -509,9 +635,19 @@ class SmartAutoFillGUI:
     
     def on_closing(self):
         """关闭窗口时的处理"""
+        if self.is_minimized_to_tray:
+            # 如果已托管到后台，只是隐藏窗口
+            self.root.withdraw()
+            return
+        
         if self.is_running:
             self.stop_tool()
         self.save_config()
+        
+        # 停止托盘图标
+        if self.tray_icon:
+            self.tray_icon.stop()
+        
         self.root.destroy()
 
 def main():

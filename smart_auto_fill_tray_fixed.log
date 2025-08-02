@@ -1,0 +1,56 @@
+2025-08-02 17:35:16,826 - INFO - 智能自动填充工具（修复版托盘版）初始化完成
+2025-08-02 17:35:16,826 - INFO - 智能自动填充工具（修复版托盘版）启动中...
+2025-08-02 17:35:16,923 - INFO - 鼠标进入输入框: (2874, 1255)
+2025-08-02 17:35:16,923 - INFO - 智能自动填充工具（修复版托盘版）已启动
+2025-08-02 17:35:16,923 - INFO - 当前状态: 启用
+2025-08-02 17:35:16,924 - INFO - 现在复制文本到剪贴板，鼠标悬停在输入框上即可自动填充
+2025-08-02 17:35:16,924 - INFO - 检测到剪贴板变化: o okk
+2025-08-02 17:35:17,083 - INFO - 智能填充完成: o okk
+2025-08-02 17:35:23,813 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:23,972 - INFO - 智能填充完成: 统计
+2025-08-02 17:35:34,719 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:34,719 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:36,930 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:36,930 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:37,432 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:37,432 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:39,242 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:39,242 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:41,451 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:41,452 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:42,154 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:42,154 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:43,264 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:43,264 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:43,667 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:43,667 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:44,371 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:44,371 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:35:45,879 - INFO - 检测到剪贴板变化: 统计
+2025-08-02 17:35:45,880 - INFO - 内容与上次相同，跳过自动填充
+2025-08-02 17:36:56,988 - INFO - 检测到剪贴板变化: 什么要增加托盘应用呢？你参考这个工具的截图对吧，在这个英用上面加一个就是托管，直接把这个应用对就托管...
+2025-08-02 17:36:57,149 - INFO - 智能填充完成: 什么要增加托盘应用呢？你参考这个工具的截图对吧，在这个英用上面加一个就是托管，直接把这个应用对就托管...
+2025-08-02 17:40:18,449 - INFO - 正在停止智能自动填充工具...
+2025-08-02 17:40:18,450 - INFO - 智能自动填充工具已停止
+2025-08-02 17:40:18,450 - ERROR - An error occurred when calling message handler
+Traceback (most recent call last):
+  File "C:\Users\15037\AppData\Local\Programs\Python\Python313\Lib\site-packages\pystray\_win32.py", line 412, in _dispatcher
+    return int(icon._message_handlers.get(
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        uMsg, lambda w, l: 0)(wParam, lParam) or 0)
+        ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\15037\AppData\Local\Programs\Python\Python313\Lib\site-packages\pystray\_win32.py", line 224, in _on_notify
+    descriptors[index - 1](self)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\15037\AppData\Local\Programs\Python\Python313\Lib\site-packages\pystray\_base.py", line 328, in inner
+    callback(self)
+    ~~~~~~~~^^^^^^
+  File "C:\Users\15037\AppData\Local\Programs\Python\Python313\Lib\site-packages\pystray\_base.py", line 453, in __call__
+    return self._action(icon, self)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "C:\Users\15037\AppData\Local\Programs\Python\Python313\Lib\site-packages\pystray\_base.py", line 548, in wrapper0
+    return action()
+  File "D:\Lan_Company\01-AI-code-all\08-自动输入\smart_auto_fill_tray_fixed.py", line 387, in stop
+    sys.exit(0)
+    ~~~~~~~~^^^
+SystemExit: 0
