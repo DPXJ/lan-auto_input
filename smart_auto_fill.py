@@ -98,7 +98,7 @@ class SmartAutoFillGUI:
         default_config = {
             "enabled": True,
             "fill_cooldown": 0.5,
-            "max_content_length": 1000,
+            "max_content_length": 20000,
             "mouse_check_interval": 0.1,
             "exclude_apps": ["记事本", "notepad", "word", "excel", "powerpoint"],
             "include_apps": [],
@@ -126,7 +126,7 @@ class SmartAutoFillGUI:
         # 应用配置
         self.is_enabled = self.config.get("enabled", True)
         self.fill_cooldown = self.config.get("fill_cooldown", 0.5)
-        self.max_content_length = self.config.get("max_content_length", 1000)
+        self.max_content_length = self.config.get("max_content_length", 20000)
         self.mouse_check_interval = self.config.get("mouse_check_interval", 0.1)
     
     def save_config(self):
