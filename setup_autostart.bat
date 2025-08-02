@@ -10,7 +10,7 @@ echo.
 :: 获取当前目录
 set "CURRENT_DIR=%~dp0"
 set "PYTHON_PATH=pythonw.exe"
-set "SCRIPT_PATH=%CURRENT_DIR%smart_auto_fill_tray.py"
+set "SCRIPT_PATH=%CURRENT_DIR%smart_auto_fill.py"
 
 echo 当前目录: %CURRENT_DIR%
 echo Python脚本: %SCRIPT_PATH%
@@ -18,7 +18,7 @@ echo.
 
 :: 检查Python脚本是否存在
 if not exist "%SCRIPT_PATH%" (
-    echo 错误: 找不到 smart_auto_fill_tray.py 文件
+    echo 错误: 找不到 smart_auto_fill.py 文件
     echo 请确保脚本文件在当前目录中
     pause
     exit /b 1
